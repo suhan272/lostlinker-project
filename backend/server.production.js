@@ -26,7 +26,7 @@ app.use((req, res, next) => {
    const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
-  'https://lostlinker-project-1.onrender.com', // ✅ your frontend
+   'https://lostlinker-jtjg.onrender.com', // ✅ your frontend
   'https://lostlinker-project.onrender.com'    // backend itself
 ];
 
