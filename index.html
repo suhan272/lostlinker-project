@@ -278,9 +278,11 @@ Failure to do so will be treated as misuse of the platform and reported to the H
 <script>
   // --- GLOBAL STATE ---
   // Use environment variable for API URL, fallback to localhost for development
-  const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-    ? 'http://localhost:3000/api' 
-    : 'https://lostlinker-project.onrender.com' // Update this to your actual backend URL after deployment
+ // Update this to your actual backend URL after deployment
+  const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:3000/api'
+  : 'https://lostlinker-project.onrender.com/api';
+
   
   let currentFilter = "Lost", searchQuery = "", currentCollege = "";
   let currentUser = null; // {name,email,college, isAdmin, _id}
@@ -859,3 +861,4 @@ Failure to do so will be treated as misuse of the platform and reported to the H
 </script>
 </body>
 </html>
+
