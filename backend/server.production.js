@@ -23,12 +23,13 @@ app.use(express.json());
 // CORS - Configured for production
 app.use((req, res, next) => {
     // In production, replace '*' with your frontend domain
-    const allowedOrigins = [
-        'http://localhost:3000',
-        'http://localhost:5173',
-        'https://yourdomain.com', // Replace with your actual domain
-        'https://your-frontend.vercel.app' // Example Vercel deployment
-    ];
+   const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://lostlinker-project-1.onrender.com', // ✅ your frontend
+  'https://lostlinker-project.onrender.com'    // backend itself
+];
+
     
     const origin = req.headers.origin;
     if (allowedOrigins.includes(origin)) {
