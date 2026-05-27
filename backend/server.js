@@ -150,7 +150,7 @@ app.post('/api/login', async (req, res) => {
 // 3. GET POSTS (READ)
 app.get('/api/posts', auth, async (req, res) => {
     try {
-        const { type, college, search } = req.query;
+        const { type, college, search, category, location } = req.query;
 
         let query = { type, college: req.user.college }; 
 
@@ -163,6 +163,16 @@ app.get('/api/posts', auth, async (req, res) => {
                 { userName: searchRegex },
                 { location: searchRegex }
             ];
+        }
+        
+        // Add category filter if provided
+        if (category) {
+            query.category = category;
+        }
+        
+        // Add location filter if provided
+        if (location) {
+            query.location = location;
         }
 
         const posts = await Post.find(query).sort({ date: -1 });
