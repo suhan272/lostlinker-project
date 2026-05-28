@@ -41,10 +41,15 @@ app.use((req, res, next) => {
     ];
     
     const origin = req.headers.origin;
-    if (allowedOrigins.includes(origin)) {
+    if (origin) {
+        // Echo the incoming origin to avoid using wildcard when credentials are allowed.
+        // This prevents browsers from rejecting responses that include
+        // Access-Control-Allow-Credentials: true alongside Access-Control-Allow-Origin: *.
+        res.header('Access-Control-Allow-Origin', origin);
+    } else if (allowedOrigins.includes(origin)) {
         res.header('Access-Control-Allow-Origin', origin);
     } else {
-        // Fallback to allow all origins in development
+        // No origin (non-browser client) — allow all as a fallback
         res.header('Access-Control-Allow-Origin', '*');
     }
     
