@@ -278,10 +278,11 @@ Failure to do so will be treated as misuse of the platform and reported to the H
 <script>
   // --- GLOBAL STATE ---
   // Use environment variable for API URL, fallback to localhost for development
- // Update this to your actual backend URL after deployment
-  const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'http://localhost:3000/api'
-  : 'lostlinker-finall.onrender.com/api';
+  // If running locally or opened via file:// use the localhost backend, otherwise
+  // use the deployed Render backend so GitHub Pages frontend can reach the API.
+  const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:')
+    ? 'http://localhost:3000/api'
+    : 'https://lostlinker-finall.onrender.com/api';
 
   
   let currentFilter = "Lost", searchQuery = "", currentCollege = "";
