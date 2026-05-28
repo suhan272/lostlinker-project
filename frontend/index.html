@@ -358,10 +358,10 @@ Failure to do so will be treated as misuse of the platform and reported to the H
 
 <script>
   // --- GLOBAL STATE ---
-  // Use environment variable for API URL, fallback to localhost for development
-  const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-    ? 'http://localhost:3000/api' 
-    : 'lostlinker-finall.onrender.com/api' // Update this to your actual backend URL after deployment
+  // Use relative API when served from the backend (same origin), otherwise fallback to localhost or deployed backend
+  const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:')
+    ? 'http://localhost:3000/api'
+    : '/api';
   
   let currentFilter = "Lost", searchQuery = "", currentCollege = "";
   let currentUser = null; // {name,email,college, isAdmin, _id}
@@ -440,7 +440,7 @@ Failure to do so will be treated as misuse of the platform and reported to the H
   
   function highlightText(text, query) {
     if (!query) return text;
-    const regex = new RegExp((${query}), 'gi');
+    const regex = new RegExp(`(${query})`, 'gi');
     return text.replace(regex, '<span class="highlight">$1</span>');
   }
   
@@ -498,7 +498,7 @@ Failure to do so will be treated as misuse of the platform and reported to the H
   function openProfile(){
     document.getElementById('interface').classList.add('hidden');
     const info = document.getElementById('profileInfo');
-    info.innerHTML = <p><b>Name:</b> ${currentUser.name}</p><p><b>Email:</b> ${currentUser.email}</p><p><b>College:</b> ${currentUser.college}</p><p><b>Role:</b> ${currentUser.isAdmin ? 'Admin' : 'User'}</p>;
+    info.innerHTML = `<p><b>Name:</b> ${currentUser.name}</p><p><b>Email:</b> ${currentUser.email}</p><p><b>College:</b> ${currentUser.college}</p><p><b>Role:</b> ${currentUser.isAdmin ? 'Admin' : 'User'}</p>`;
     document.getElementById('profile').classList.remove('hidden');
   }
   function closeProfile(){ document.getElementById('profile').classList.add('hidden'); document.getElementById('interface').classList.remove('hidden'); }
@@ -538,7 +538,7 @@ Failure to do so will be treated as misuse of the platform and reported to the H
     if(!(domain.endsWith(".ac.in")||domain.endsWith(".edu"))){ alert("❌ Only official college emails allowed!"); return;}
 
     try {
-      const response = await fetch(${API_URL}/signup, {
+      const response = await fetch(`${API_URL}/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password })
@@ -563,7 +563,7 @@ Failure to do so will be treated as misuse of the platform and reported to the H
     const password=document.getElementById("loginPassword").value;
 
     try {
-      const response = await fetch(${API_URL}/login, {
+      const response = await fetch(`${API_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -578,7 +578,7 @@ Failure to do so will be treated as misuse of the platform and reported to the H
 
         // Update UI
         const role = currentUser.isAdmin ? 'ADMIN' : currentUser.name;
-        document.getElementById("collegeTitle").innerText = 🔗 ${currentCollege} - LostLinker (${role});
+        document.getElementById("collegeTitle").innerText = `🔗 ${currentCollege} - LostLinker (${role})`;
 
         document.getElementById("login").classList.add("hidden");
         document.getElementById("interface").classList.remove("hidden");
@@ -601,7 +601,7 @@ Failure to do so will be treated as misuse of the platform and reported to the H
     const email = document.getElementById("forgotEmail").value.trim();
     
     try {
-      const response = await fetch(${API_URL}/forgot-password, {
+      const response = await fetch(`${API_URL}/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -633,7 +633,7 @@ Failure to do so will be treated as misuse of the platform and reported to the H
     }
     
     try {
-      const response = await fetch(${API_URL}/reset-password, {
+      const response = await fetch(`${API_URL}/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -678,12 +678,12 @@ Failure to do so will be treated as misuse of the platform and reported to the H
   async function submitPost(e, type) {
     e.preventDefault();
     const prefix = type.toLowerCase();
-    const name = document.getElementById(${prefix}Name).value.trim();
-    const category = document.getElementById(${prefix}Type).value.trim();
-    const location = document.getElementById(${prefix}Location).value.trim();
-    const date = document.getElementById(${prefix}Date).value;
-    const imgFile = document.getElementById(${prefix}Image).files[0];
-    const description = document.getElementById(${prefix}Desc).value.trim();
+    const name = document.getElementById(`${prefix}Name`).value.trim();
+    const category = document.getElementById(`${prefix}Type`).value.trim();
+    const location = document.getElementById(`${prefix}Location`).value.trim();
+    const date = document.getElementById(`${prefix}Date`).value;
+    const imgFile = document.getElementById(`${prefix}Image`).files[0];
+    const description = document.getElementById(`${prefix}Desc`).value.trim();
 
     if (!imgFile) { alert('📷 Image is required'); return; }
     
@@ -705,11 +705,11 @@ Failure to do so will be treated as misuse of the platform and reported to the H
     console.log('Sending post data:', newPost); // Log the data being sent
 
     try {
-        const response = await fetch(${API_URL}/posts, {
+        const response = await fetch(`${API_URL}/posts`, {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
-                'Authorization': Bearer ${getToken()} 
+                'Authorization': `Bearer ${getToken()}` 
             },
             body: JSON.stringify(newPost)
         });
@@ -729,8 +729,8 @@ Failure to do so will be treated as misuse of the platform and reported to the H
         console.log('Response data:', data); // Log response data
 
         if (response.ok) {
-            alert(✅ ${type} item submitted!);
-            document.getElementById(${prefix}FormEl).reset();
+            alert(`✅ ${type} item submitted!`);
+            document.getElementById(`${prefix}FormEl`).reset();
             backToInterface();
         } else {
             alert("⚠ Error submitting post: " + (data.message || "Failed to submit.") + 
@@ -776,14 +776,14 @@ Failure to do so will be treated as misuse of the platform and reported to the H
         const location = document.getElementById("locationFilter").value;
         
         // Build query parameters
-        let queryParams = type=${currentFilter}&college=${currentUser.college};
-        if (searchQuery) queryParams += &search=${encodeURIComponent(searchQuery)};
-        if (category) queryParams += &category=${encodeURIComponent(category)};
-        if (location) queryParams += &location=${encodeURIComponent(location)};
+        let queryParams = `type=${currentFilter}&college=${currentUser.college}`;
+        if (searchQuery) queryParams += `&search=${encodeURIComponent(searchQuery)}`;
+        if (category) queryParams += `&category=${encodeURIComponent(category)}`;
+        if (location) queryParams += `&location=${encodeURIComponent(location)}`;
         
-        const url = ${API_URL}/posts?${queryParams};
+        const url = `${API_URL}/posts?${queryParams}`;
         const response = await fetch(url, {
-            headers: { 'Authorization': Bearer ${getToken()} }
+            headers: { 'Authorization': `Bearer ${getToken()}` }
         });
         
         // Check if the response is HTML instead of JSON
@@ -813,7 +813,7 @@ Failure to do so will be treated as misuse of the platform and reported to the H
             div.className = "post-card";
             
             // The image field in a full-stack app should hold a URL, but using Base64 for simplicity here.
-            const imgTag = <img src="${p.image}" alt="${p.name}" class="post-image">;
+            const imgTag = `<img src="${p.image}" alt="${p.name}" class="post-image">`;
             const canDelete = currentUser.isAdmin || (currentUser && p.userEmail === currentUser.email);
 
             div.innerHTML = `
@@ -857,15 +857,16 @@ Failure to do so will be treated as misuse of the platform and reported to the H
             list.innerHTML = "<p style='color:red;'>⚠ Cannot connect to the backend server. Please check if the server is running on http://localhost:3000</p>";
         } else {
             list.innerHTML = "<p style='color:red;'>⚠ Failed to fetch posts. Error: " + error.message + "</p>";
-        }
+
+          }
     }
   }
 
   async function deletePostById(id){
     try {
-        const response = await fetch(${API_URL}/posts/${id}, {
+        const response = await fetch(`${API_URL}/posts/${id}`, {
             method: 'DELETE',
-            headers: { 'Authorization': Bearer ${getToken()} }
+            headers: { 'Authorization': `Bearer ${getToken()}` }
         });
 
         if (response.ok) {
@@ -891,8 +892,8 @@ Failure to do so will be treated as misuse of the platform and reported to the H
     if (!currentChat.userId || !currentChat.postId) return;
     
     try {
-      const response = await fetch(${API_URL}/messages/${currentChat.userId}/${currentChat.postId}, {
-        headers: { 'Authorization': Bearer ${getToken()} }
+      const response = await fetch(`${API_URL}/messages/${currentChat.userId}/${currentChat.postId}`, {
+        headers: { 'Authorization': `Bearer ${getToken()}` }
       });
       const messages = await response.json();
       
@@ -901,7 +902,7 @@ Failure to do so will be treated as misuse of the platform and reported to the H
       
       messages.forEach(msg => {
         const messageDiv = document.createElement('div');
-        messageDiv.className = message ${msg.senderId._id === currentUser._id ? 'sent' : 'received'};
+        messageDiv.className = `message ${msg.senderId._id === currentUser._id ? 'sent' : 'received'}`;
         messageDiv.innerHTML = `
           <div><strong>${msg.senderId._id === currentUser._id ? 'You' : msg.senderId.name}</strong></div>
           <div>${msg.content}</div>
@@ -929,11 +930,11 @@ Failure to do so will be treated as misuse of the platform and reported to the H
     if (!content) return;
     
     try {
-      const response = await fetch(${API_URL}/messages, {
+      const response = await fetch(`${API_URL}/messages`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': Bearer ${getToken()} 
+          'Authorization': `Bearer ${getToken()}` 
         },
         body: JSON.stringify({ 
           receiverId: currentChat.userId,
@@ -965,8 +966,8 @@ Failure to do so will be treated as misuse of the platform and reported to the H
   // Inbox functionality
   async function loadUnreadCount(){
     try {
-      const response = await fetch(${API_URL}/messages/unread-count, {
-        headers: { 'Authorization': Bearer ${getToken()} }
+      const response = await fetch(`${API_URL}/messages/unread-count`, {
+        headers: { 'Authorization': `Bearer ${getToken()}` }
       });
       const data = await response.json();
       
@@ -985,8 +986,8 @@ Failure to do so will be treated as misuse of the platform and reported to the H
   
   async function loadInbox(){
     try {
-      const response = await fetch(${API_URL}/messages/unread, {
-        headers: { 'Authorization': Bearer ${getToken()} }
+      const response = await fetch(`${API_URL}/messages/unread`, {
+        headers: { 'Authorization': `Bearer ${getToken()}` }
       });
       const messages = await response.json();
       
@@ -1001,7 +1002,7 @@ Failure to do so will be treated as misuse of the platform and reported to the H
       // Group messages by sender and post
       const groupedMessages = {};
       messages.forEach(msg => {
-        const key = ${msg.senderId._id}-${msg.postId._id};
+        const key = `${msg.senderId._id}-${msg.postId._id}`;
         if (!groupedMessages[key]) {
           groupedMessages[key] = {
             sender: msg.senderId,

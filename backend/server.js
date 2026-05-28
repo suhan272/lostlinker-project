@@ -10,6 +10,7 @@ const User = require('./models/UserModel');
 const Message = require('./models/MessageModel');
 
 const app = express();
+const path = require('path');
 
 // Use environment variables or default values
 const PORT = process.env.PORT || 3000;
@@ -19,6 +20,15 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your_super_secret_key_CHANGE_THIS'
 // Middleware
 app.use(bodyParser.json({ limit: '10mb' })); // Reduced limit for better performance
 app.use(express.json());
+
+// Serve frontend static files when deployed or during local integration
+const frontendPath = path.join(__dirname, '..', 'frontend');
+app.use(express.static(frontendPath));
+
+// For any non-API GET request, serve index.html (SPA support)
+app.get(/^\/(?!api).*/, (req, res) => {
+    res.sendFile(path.join(frontendPath, 'index.html'));
+});
 
 // CORS - Configured for development with VS Code Live Server
 app.use((req, res, next) => {
@@ -52,8 +62,7 @@ app.use((req, res, next) => {
 
 // Database Connection
 mongoose.connect(MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+    useNewUrlParser: true
 }).then(() => {
     console.log('MongoDB connected successfully.');
     app.listen(PORT, () => {
@@ -63,6 +72,7 @@ mongoose.connect(MONGO_URI, {
     console.error('MongoDB connection error:', err);
     process.exit(1); // Exit if database connection fails
 });
+
 
 // --- Auth Middleware ---
 const auth = (req, res, next) => {

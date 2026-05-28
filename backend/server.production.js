@@ -50,8 +50,7 @@ app.use((req, res, next) => {
 
 // Database Connection
 mongoose.connect(MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+    useNewUrlParser: true
 }).then(() => {
     console.log('MongoDB connected successfully.');
     app.listen(PORT, () => {
