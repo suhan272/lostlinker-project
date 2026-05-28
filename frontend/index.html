@@ -361,7 +361,7 @@ Failure to do so will be treated as misuse of the platform and reported to the H
   // Use relative API when served from the backend (same origin), otherwise fallback to localhost or deployed backend
   const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:')
     ? 'http://localhost:3000/api'
-    : '/api';
+    : 'https://lostlinker-finall.onrender.com/api';
   
   let currentFilter = "Lost", searchQuery = "", currentCollege = "";
   let currentUser = null; // {name,email,college, isAdmin, _id}
